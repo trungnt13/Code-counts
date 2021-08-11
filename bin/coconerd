@@ -1,0 +1,11 @@
+#!/usr/bin/env python
+import os
+import shutil
+
+from coconerd.main import main, get_arguments
+
+if __name__ == '__main__':
+  args = get_arguments()
+  if args.clear and os.path.exists(args.cache):
+    shutil.rmtree(args.cache)
+  main(args.path_or_url, args.cache)
