@@ -2,6 +2,11 @@
 
 Count how many lines of code you had written during your doctoral study.
 
+### Install
+
+```commandline
+pip install coconerd
+```
 
 ### Usage
 
