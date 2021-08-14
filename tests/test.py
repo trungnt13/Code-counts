@@ -47,7 +47,7 @@ class CodeCountTest(unittest.TestCase):
       if_cond=3,
       func_def=2,
       class_def=2,
-      lines=25
+      lines=24
     )
     for k, v in true_values.items():
       self.assertEqual(v, stats[k],
