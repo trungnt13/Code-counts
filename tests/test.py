@@ -3,9 +3,11 @@ import unittest
 import zipfile
 from functools import partial
 from tempfile import TemporaryDirectory
-from coconerd.main import code_statistics, download_github
+from coconerd.main import code_statistics, download_github, process_path, \
+  code_attrs
 from hashlib import md5
 import base64
+from multiprocessing import Queue
 
 source = \
   r"""
@@ -70,7 +72,8 @@ class CodeCountTest(unittest.TestCase):
     with TemporaryDirectory(suffix='_coconerd') as fd:
       url = b'aHR0cHM6Ly9naXRodWIuY29tL3RydW5nbnQxMy9iaWdhcnJheQ==\n'
       url = str(base64.decodebytes(url), 'utf-8')
-      with zipfile.ZipFile(download_github(url=url, cache_dir=fd), 'r') as f:
+      zip_path = download_github(url=url, cache_dir=fd)
+      with zipfile.ZipFile(zip_path, 'r') as f:
         namelist = {os.path.basename(i) for i in f.namelist()}
         self.assertTrue(all(name in namelist for name in [
           'mmap_array.py',
@@ -78,6 +81,16 @@ class CodeCountTest(unittest.TestCase):
           'test_mmaparray.py',
           'test_pointerarray.py'
         ]), 'Failed downloading from Github HEAD')
+
+      queue = Queue()
+      process_path(zip_path, queue)
+      objs = [queue.get() for _ in range(queue.qsize())]
+      self.assertTrue(all(i is None for i in objs[:-1]),
+                      'process_path logic wrong.')
+      attrs = dict(objs[-1][-1])
+      self.assertTrue(all(k in attrs for k in code_attrs.keys()),
+                      'missing attributes for code statistics.')
+      queue.close()
 
 
 if __name__ == '__main__':
