@@ -28,7 +28,6 @@ def test1(a):
     pass
   else:
     pass
-    
 
 class Test:
   pass

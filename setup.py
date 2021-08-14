@@ -34,6 +34,6 @@ setup(
   packages=find_packages(),
   test_suite='tests',
   url='https://github.com/trungnt13/Code-counts',
-  version=0.1,
+  version=0.2,
   zip_safe=False,
 )
