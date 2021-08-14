@@ -2,9 +2,12 @@ name: Python package
 
 on:
   push:
-    branches: [ main ]
+    branches:
+    - main
+    - cov_badge
   pull_request:
-    branches: [ main ]
+    branches:
+    - main
 
 jobs:
   build:
