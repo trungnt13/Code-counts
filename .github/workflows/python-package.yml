@@ -55,9 +55,8 @@ jobs:
         else
           COLOR=yellow
         fi
-        echo "$PER" >> $GITHUB_ENV
-        echo "$NUMB" >> $GITHUB_ENV
-        echo "$COLOR" >> $GITHUB_ENV
+        echo "message=$PER" >> $GITHUB_ENV
+        echo "color=$COLOR" >> $GITHUB_ENV
     - name: Create coverage badge
       uses: schneegans/dynamic-badges-action@v1.1.0
       with:
@@ -65,5 +64,5 @@ jobs:
         gistID: 97ca78aa87bce5c2a5455433931aeca0
         filename: coconerd.json
         label: Test Coverage
-        message: ${{ env.PER }}
-        color: ${{ env.COLOR }}
+        message: ${{ env.message }}
+        color: ${{ env.color }}
