@@ -1,5 +1,11 @@
+import os
 import unittest
-from coconerd.main import code_statistics
+import zipfile
+from functools import partial
+from tempfile import TemporaryDirectory
+from coconerd.main import code_statistics, download_github
+from hashlib import md5
+import base64
 
 source = \
   r"""
@@ -45,6 +51,33 @@ class CodeCountTest(unittest.TestCase):
     for k, v in true_values.items():
       self.assertEqual(v, stats[k],
                        f'[{k}] true value is {v} but return {stats[k]}')
+
+  def test_download_github_commit(self):
+    with TemporaryDirectory(suffix='_coconerd') as fd:
+      md5_checksum = r'2b524be404273970cc72ac98eb294b16'
+      url = b'aHR0cHM6Ly9naXRodWIuY29tL3RydW5nbnQxMy9iaWdhcnJheS9hcmNoaXZ' \
+            b'lLzRjOWJjZGQ0OGRh\nNDk1Y2IxZjkxOTczMGRjNTIxNjVjNWQzYzg3MDMuemlw\n'
+      url = str(base64.decodebytes(url), 'utf-8')
+      path = download_github(url=url, cache_dir=fd)
+      with open(path, 'rb') as f:
+        md5_hash = md5()
+        for buf in iter(partial(f.read, 1024), b''):
+          md5_hash.update(buf)
+        self.assertEqual(md5_checksum, md5_checksum,
+                         'Failed downloading from Github commit hash')
+
+  def test_download_github_head(self):
+    with TemporaryDirectory(suffix='_coconerd') as fd:
+      url = b'aHR0cHM6Ly9naXRodWIuY29tL3RydW5nbnQxMy9iaWdhcnJheQ==\n'
+      url = str(base64.decodebytes(url), 'utf-8')
+      with zipfile.ZipFile(download_github(url=url, cache_dir=fd), 'r') as f:
+        namelist = {os.path.basename(i) for i in f.namelist()}
+        self.assertTrue(all(name in namelist for name in [
+          'mmap_array.py',
+          'setup.py',
+          'test_mmaparray.py',
+          'test_pointerarray.py'
+        ]), 'Failed downloading from Github HEAD')
 
 
 if __name__ == '__main__':

@@ -27,19 +27,23 @@ code_attrs = dict(
 # ===========================================================================
 # Helpers
 # ===========================================================================
-def download_github(p: str, cache: str) -> Path:
-  if p[-1] == '/':
-    p = p[:-1]
-  repo_name = p.split('/')[-1]
-  user_name = p.split('/')[-2]
-  url = f'{p}/archive/refs/heads/main.zip'
-  cache_path = os.path.join(cache, f'{user_name}_{repo_name}.zip')
+def download_github(url: str, cache_dir: str) -> Path:
+  if url[-1] == '/':
+    url = url[:-1]
+  org_url = url
+  repo_name = url.split('/')[-1]
+  user_name = url.split('/')[-2]
+  if '.zip' not in os.path.splitext(str(url)):
+    url = f'{url}/archive/refs/heads/main.zip'
+    cache_path = os.path.join(cache_dir, f'{user_name}_{repo_name}.zip')
+  else: # somehow download using commit hash has .zip already
+    cache_path = os.path.join(cache_dir, f'{user_name}_{repo_name}')
   if not os.path.exists(cache_path):
     try:
       conn = urlopen(url)
       conn.close()
     except HTTPError:
-      url = f'{p}/archive/refs/heads/master.zip'
+      url = f'{org_url}/archive/refs/heads/master.zip'
     prog = tqdm(desc=f'Downloading {user_name}/{repo_name}', unit="Kb")
 
     def report_hook(block_number, read_size, total_file_size):
