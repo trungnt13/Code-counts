@@ -62,5 +62,7 @@ jobs:
         gistID: 97ca78aa87bce5c2a5455433931aeca0
         filename: coconerd.json
         label: Test Coverage
-        message: ${{ env.PER }}
-        color: ${{ env.COLOR }}
+        message: 58%
+        color: yellow
+#        message: ${{ env.PER }}
+#        color: ${{ env.COLOR }}
