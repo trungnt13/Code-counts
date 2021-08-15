@@ -1,16 +1,17 @@
+import sys
 import os
 import unittest
 import zipfile
 from functools import partial
 from tempfile import TemporaryDirectory
 from coconerd.main import code_statistics, download_github, process_path, \
-  code_attrs
+  code_attrs, validate_path, show_stats, get_arguments
 from hashlib import md5
 import base64
 from multiprocessing import Queue
 
 source = \
-  r"""
+r'''
 for i in range(10):
   for j in range(11):
     pass
@@ -34,7 +35,7 @@ class Test:
 
 class Test1(object):
   pass
-  """
+'''
 
 
 class CodeCountTest(unittest.TestCase):
@@ -47,7 +48,7 @@ class CodeCountTest(unittest.TestCase):
       if_cond=3,
       func_def=2,
       class_def=2,
-      lines=24
+      lines=17
     )
     for k, v in true_values.items():
       self.assertEqual(v, stats[k],
@@ -90,6 +91,26 @@ class CodeCountTest(unittest.TestCase):
       self.assertTrue(all(k in attrs for k in code_attrs.keys()),
                       'missing attributes for code statistics.')
       queue.close()
+
+  def test_validate_path(self):
+    url = b'aHR0cHM6Ly9naXRodWIuY29tL3RydW5nbnQxMy9iaWdhcnJheQ==\n'
+    url = str(base64.decodebytes(url), 'utf-8')
+    with TemporaryDirectory(suffix='_coconerd') as cache_path:
+      all_path = validate_path(['/tmp', url], cache_path)
+      self.assertEqual(len(all_path), 2)
+
+  def test_show_stats(self):
+    stats = dict(test=dict(lines=100))
+    trace = dict(test='name')
+    show_stats(stats, trace)
+
+  def test_get_arguments(self):
+    org_argv = list(sys.argv)
+    sys.argv = ['coconerd/main.py', 'default', '--clear']
+    args = get_arguments()
+    self.assertEqual(len(args.path_or_url), 4)
+    self.assertTrue(args.clear)
+    sys.argv = org_argv
 
 
 if __name__ == '__main__':
