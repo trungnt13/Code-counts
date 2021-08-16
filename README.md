@@ -8,7 +8,7 @@
 
 Count how many lines of code you had written during your doctoral study.
 
-**Note**: this package use regular expression to code the specific set of attributes in python file without importing the module, thus the code is *safe* (anyway, be aware of which github repo you are downloading from).
+**Note**: this package use regular expression to count the specific set of attributes in python file without importing the module, thus the code is *safe* (anyway, be aware of which github repo you are downloading from).
 
 ### Install
 
